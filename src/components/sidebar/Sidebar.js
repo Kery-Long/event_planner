@@ -9,10 +9,10 @@ import { NavLink } from "react-router-dom";
 export default function () {
   return (
     <div className="sidebar">
-      <div classname="sidebar-content">
+      <div className="sidebar-content">
         <div className="user"></div>
         <p>Hey User :)</p>
-        <nav classname="links">
+        <nav className="links">
           <ul>
             <li>
               <NavLink exact to="/">

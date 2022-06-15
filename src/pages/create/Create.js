@@ -35,6 +35,15 @@ export default function Create() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setFormError(null)
+    if(!category) {
+      setFormError('Please select a category')
+      return
+    }
+    if(assignedUsers.length <1) {
+      setFormError('Please assign at least one user to this project.')
+      return
+    }
 
     console.log(name, details, dueDate, category.value, assignedUsers)
   }

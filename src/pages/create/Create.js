@@ -1,18 +1,42 @@
 import './create.css'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useCollection  } from '../../hooks/useCollection'
+
+import Select from 'react-select'
+
+const categories = [
+  { value: 'development', label: 'Development' },
+  { value: 'design', label: 'Design' },
+  { value: 'sales', label: 'Sales' },
+  { value: 'marketing', label: 'Marketing' },
+]
 
 export default function Create() {
+  const { documents } = useCollection('users')
+  const [users, setUsers] = useState([])
+
   // form field values
   const [name, setName] = useState('')
   const [details, setDetails] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [category, setCategory] = useState('')
   const [assignedUsers, setAssignedUsers] = useState([])
+  const [formError, setFormError] = useState(null)
+
+  // create user values for react-select
+  useEffect(() => {
+    if(documents) {
+      setUsers(documents.map(user => {
+        return { value: {...user, id: user.id}, label: user.displayName }
+      }))
+    }
+  }, [documents])
+  // console.log(users)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    console.log(name, details, dueDate)
+    console.log(name, details, dueDate, category.value, assignedUsers)
   }
 
   return (
@@ -47,14 +71,23 @@ export default function Create() {
         </label>
         <label>
           <span>Project category:</span>
-          {/* select here later */}
+          <Select
+            onChange={(option) => setCategory(option)}
+            options={categories}
+          />
         </label>
         <label>
           <span>Assign to:</span>
-          {/* select here later */}
+          <Select
+            onChange={(option) => setAssignedUsers(option)}
+            options={users}
+            isMulti
+          />
         </label>
 
         <button className="btn">Add Project</button>
+
+        {formError && <p className="error">{formError}</p>}
       </form>
     </div>
   )

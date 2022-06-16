@@ -1,8 +1,12 @@
 import './create.css'
 import React, { useEffect, useState } from 'react'
 import { useCollection  } from '../../hooks/useCollection'
+import { useAuthContext } from '../../hooks/useAuthContext'
+import { useFirestore } from '../../hooks/useFirestore'
+import { useHistory } from 'react-router-dom'
 
 import Select from 'react-select'
+import { timestamp } from '../../Firebase/config'
 
 const categories = [
   { value: 'development', label: 'Development' },
@@ -12,6 +16,7 @@ const categories = [
 ]
 
 export default function Create() {
+  const {addDocument, response} = useFirestore('projects')
   const { documents } = useCollection('users')
   const [users, setUsers] = useState([])
 
@@ -21,7 +26,10 @@ export default function Create() {
   const [dueDate, setDueDate] = useState('')
   const [category, setCategory] = useState('')
   const [assignedUsers, setAssignedUsers] = useState([])
+  const {user} = useAuthContext()
   const [formError, setFormError] = useState(null)
+  const history = useHistory()
+
 
   // create user values for react-select
   useEffect(() => {
@@ -44,8 +52,34 @@ export default function Create() {
       setFormError('Please assign at least one user to this project.')
       return
     }
+    const createdBy = {
+      displayName: user.displayName,
+    photoURL: user.photoURL,
+    id: user.uid
+    }
 
-    console.log(name, details, dueDate, category.value, assignedUsers)
+    const assignedUserList = assignedUsers.map((u) => {
+      return {
+        displayName: u.value.displayName,
+        photoURL: u.value.photoURL,
+        id:u.value.id 
+      }
+    })
+
+    const project = {
+      name,
+      details,
+      categoty:category.value,
+      dueDate: timestamp.fromDate(new Date(dueDate)),
+      comments: [ ],
+      createdBy,
+      assignedUserList
+    }
+
+    await addDocument(project)
+    if (!response.error) {
+      history.push('/')
+    }
   }
 
   return (
